@@ -1,0 +1,21 @@
+
+.icon-block {
+  padding: 0 15px;
+}
+.icon-block .material-icons {
+	font-size: inherit;
+}
+.nav-wrapper{
+  background-color: #1565C0;
+}
+.colorNav{
+  background-color: #1565C0;
+}
+#index-banner {
+  background-image: url("../img/hero.jpg");
+}
+.prices1{
+  font-size: 12pt;
+}
+.card-image img{
+}
