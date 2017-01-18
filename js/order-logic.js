@@ -1,93 +1,77 @@
-(function($){
-  $(function(){
-
-    $('.button-collapse').sideNav();
-
-  }); // end of document ready
-})(jQuery); // end of jQuery name space
-
-$(document).ready(
-  function(){
-    console.log('test');
-    var $currentTotal = 0;
-    var availableItems ={
-      Burger: 8.99,
-      Pizza: 7.99,
-      'Ice_Cream' : 11.99,
-      Ribs: 14.99
+$(function() {
+    function clearSelection() {
+        if (document.selection && document.selection.empty) {
+            document.selection.empty();
+        } else if (window.getSelection) {
+            let sel = window.getSelection();
+            sel.removeAllRanges();
+        }
     }
-    var itemQuantities = {
-      Burger: 0,
-      Pizza: 0,
-      'Ice_Cream': 0,
-      Ribs: 0
+
+    function OrderItem(name, price) {
+        this.name = name;
+        this.price = price;
+        this.quant = 0;
     }
-    $('.order-button').click(
-      function(){
-        // var newRow =
-        console.log($(this).data('title'));
-        var $title = $(this).data('title');
-        var $cost = parseFloat(availableItems[$title]).toFixed(2);
-        $currentTotal += parseFloat((parseFloat($cost)).toFixed(2));
-        console.log($cost);
-        console.log($currentTotal);
-        function updateCosts(){
-          var $tax = parseFloat(($currentTotal*.08).toFixed(2));
-          var $total = $currentTotal + $tax;
-          if($currentTotal < 15){
-            $('#totals').append(
-              `                      <table class="right-align">
-                                        <col align="right">
-                                        <col align="right">
-                                            <tbody id="tBodyHere">
-                                            <tr>
-                                                <td>Subtotal</td>
-                                                <td class="right-align currentSubtotalTab">${$currentTotal}</td>
-                                            </tr>
-                                            <tr>
-                                                <td>Tax</td>
-                                                <td class="right-align currentTaxTab">${$tax}</td>
-                                            </tr>
-                                            <tr>
-                                                <td>Total</td>
-                                                <td class="right-align currentTotalTab">${$total}</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>`
-            )
-          }else{
-            $('.currentSubtotalTab').html($currentTotal);
-            $('.currentTaxTab').html($tax);
-            $('.currentTotalTab').html($total);
 
-          }
+    OrderItem.prototype.totalCost = function() {
+        return this.price * this.quant
+    }
+
+    let items = {
+        'burger': new OrderItem('Royale with Cheese', 8.99),
+        'pizza': new OrderItem('Arugula Pie', 11.99),
+        'pork': new OrderItem('Smoked Swine', 14.99),
+        'iceCream': new OrderItem('Ice Cream Biscuit', 7.99)
+    }
+
+    function addToOrder(event) {
+
+        clearSelection()
+
+        let $targetItem = $(event.target),
+            id = $targetItem[0].id,
+            $tr = $('<tr>'),
+            $tdName = $('<td>'),
+            $tdQuant = $('<td>'),
+            $tdPrice = $('<td>'),
+            item = items[id];
+
+        if (item.quant === 0) {
+            item.quant++;
+            $tdName.text(item.name)
+            $tdQuant.text(item.quant)
+            $tdQuant.addClass('right-align')
+            $tdQuant.attr('id', `${id}Order`)
+            $tdPrice.text(`$${item.price.toFixed(2)}`)
+            $tdPrice.addClass('right-align')
+            $tr.append($tdName)
+            $tr.append($tdQuant)
+            $tr.append($tdPrice)
+            $('tbody').append($tr)
+        } else {
+            item.quant++;
+            $(`#${id}Order`).text(item.quant)
         }
-        if(itemQuantities[$title] === 0){
-          itemQuantities[$title]++;
-          $('#tBodyHere').append(
-            `<tr><td>${$title}</td><td id="${$title}Cart">${itemQuantities[$title]}</td><td class="right-align">${$cost}</td></tr>`
-          );
-          updateCosts();
-        }else{
-          itemQuantities[$title]++;
-          $('#'+$title+'Cart').html(itemQuantities[$title]);
-          console.log(itemQuantities[$title]);
-          updateCosts();
+        updateTotal()
+    }
 
+    function updateTotal() {
+        let subtotal = tax = total = null;
+        for (let foodItem in items) {
+            subtotal += items[foodItem].totalCost();
         }
 
+        // assuming tax rate is 8%
+        tax = subtotal * .08;
+        total = subtotal + tax;
 
-      } //end of .click function
-    ) //end of onClick
-    $('#order-place').submit(
-      function(){
-        alert('thanks for your order!');
-        event.preventDefault();
-        console.log('address ',$('#address').html());
-        console.log('clicked button');
-        if($('#address').html() !== undefined && $('#icon_telephone').html() !== undefined && $('#first_name').html() !== undefined){
-        }
-      }) //end of onclick and onclick function
-  } // end of first onReady function
+        $('#subtotal').text(`$${subtotal.toFixed(2)}`)
+        $('#tax').text(`$${tax.toFixed(2)}`)
+        $('#total').text(`$${total.toFixed(2)}`)
 
-) // end of onReady
+    }
+
+    $('.orderItems').on('click', '.card-action', addToOrder);
+
+});
