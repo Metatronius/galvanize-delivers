@@ -8,7 +8,7 @@
 
 $(document).ready(
   function(){
-    console.log('jQuery rockin');
+    console.log('test');
     var $currentTotal = 0;
     var availableItems ={
       Burger: 8.99,
